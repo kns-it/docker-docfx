@@ -9,6 +9,9 @@ RUN apk add -U wget unzip && \
 
 FROM mono:5.14
 
+ARG BUILD_DATE
+ARG VCS_REF
+
 LABEL org.label-schema.build-date=$BUILD_DATE \
       org.label-schema.name="DocFX" \
       org.label-schema.description="DocFX CLI Docker replacement" \
