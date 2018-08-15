@@ -23,7 +23,14 @@ LABEL org.label-schema.build-date=$BUILD_DATE \
       org.label-schema.schema-version="1.0" \
       maintainer="sebastian.kurfer@kns-it.de"
 
-RUN adduser \
+RUN apt-get update && \
+    apt-get install -y \
+                    --no-install-recommends \
+                    --no-install-suggests \
+		    git && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/* && \
+    adduser \
         --home /nonexistent \
         --shell /bin/false \
         --no-create-home \
