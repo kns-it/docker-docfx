@@ -13,8 +13,8 @@ ARG BUILD_DATE
 ARG VCS_REF
 
 LABEL org.label-schema.build-date=$BUILD_DATE \
-      org.label-schema.name="DocFX" \
-      org.label-schema.description="DocFX CLI Docker replacement" \
+      org.label-schema.name="DocFX including DotNET Core" \
+      org.label-schema.description="DocFX CLI Docker replacement - includes DotNET Core distribution" \
       org.label-schema.url="https://github.com/kns-it/docker-docfx" \
       org.label-schema.vcs-ref=$VCS_REF \
       org.label-schema.vcs-url="https://github.com/kns-it/docker-docfx" \
@@ -28,7 +28,7 @@ RUN apt-get update && \
     apt-get install -y \
                     --no-install-recommends \
                     --no-install-suggests \
-		    git && \
+		    git apt-transport-https && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/* && \
     adduser \
@@ -40,8 +40,23 @@ RUN apt-get update && \
         --disabled-login \
         docfx
 
+# Prepare .NET Core installation
+COPY microsoft.asc.gpg /etc/apt/trusted.gpg.d/microsoft.asc.gpg
+ADD https://packages.microsoft.com/config/debian/9/prod.list /etc/apt/sources.list.d/microsoft-prod.list
+
 # Copy downloaded and extracted DocFX sources to runtime container
 COPY --from=build --chown=docfx:docfx /tmp/docfx /opt/docfx
+
+# Install .NET Core SDK
+RUN rm -f /etc/apt/sources.list.d/mono-official-stable.list && \
+    apt-get update && \
+    apt-get install -y \
+                    --no-install-recommends \
+                    --no-install-suggests \
+		    dotnet-sdk-2.2 && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/* 
+
 
 # Install SQLitePCLRaw DLL because it's missing in Mono distribution
 RUN nuget install -OutputDirectory /tmp SQLitePCLRaw.core -ExcludeVersion && \
