@@ -1,6 +1,6 @@
 hooks/
 README.md
 Dockerfile
-build-container.sh
 .gitignore
 .dockerignore
+build-container.sh

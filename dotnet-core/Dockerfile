@@ -2,10 +2,12 @@ FROM alpine:latest as build
 
 ARG DOCFX_VERSION=2.40.7
 
-RUN apk add -U wget unzip && \
+RUN apk add -U wget unzip gnupg && \
     mkdir -p /tmp/docfx && \
     wget https://github.com/dotnet/docfx/releases/download/v${DOCFX_VERSION}/docfx.zip -O /tmp/docfx.zip && \
-    unzip /tmp/docfx.zip -d /tmp/docfx
+    unzip /tmp/docfx.zip -d /tmp/docfx && \
+    wget -qO- https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor > /tmp/microsoft.asc.gpg && \
+    wget https://packages.microsoft.com/config/debian/9/prod.list -O /tmp/prod.list
 
 FROM mono:5.18
 
@@ -40,12 +42,10 @@ RUN apt-get update && \
         --disabled-login \
         docfx
 
-# Prepare .NET Core installation
-COPY microsoft.asc.gpg /etc/apt/trusted.gpg.d/microsoft.asc.gpg
-ADD https://packages.microsoft.com/config/debian/9/prod.list /etc/apt/sources.list.d/microsoft-prod.list
-
 # Copy downloaded and extracted DocFX sources to runtime container
 COPY --from=build --chown=docfx:docfx /tmp/docfx /opt/docfx
+COPY --from=build /tmp/microsoft.asc.gpg /etc/apt/trusted.gpg.d/microsoft.asc.gpg
+COPY --from=build /tmp/prod.list /etc/apt/sources.list.d/microsoft-prod.list
 
 # Install .NET Core SDK
 RUN rm -f /etc/apt/sources.list.d/mono-official-stable.list && \
