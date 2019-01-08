@@ -23,11 +23,12 @@ LABEL org.label-schema.build-date=$BUILD_DATE \
       org.label-schema.schema-version="1.0" \
       maintainer="sebastian.kurfer@kns-it.de"
 
+
 RUN apt-get update && \
     apt-get install -y \
                     --no-install-recommends \
                     --no-install-suggests \
-		    git && \
+		    git apt-transport-https && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/* && \
     adduser \
@@ -39,8 +40,21 @@ RUN apt-get update && \
         --disabled-login \
         docfx
 
+# Prepare .NET Core installation
+COPY microsoft.asc.gpg /etc/apt/trusted.gpg.d/microsoft.asc.gpg
+ADD https://packages.microsoft.com/config/debian/9/prod.list /etc/apt/sources.list.d/microsoft-prod.list
+
 # Copy downloaded and extracted DocFX sources to runtime container
 COPY --from=build --chown=docfx:docfx /tmp/docfx /opt/docfx
+
+# Install .NET Core SDK
+RUN rm -f /etc/apt/sources.list.d/mono-official-stable.list && \
+    apt-get update && \
+    apt-get install -y \
+                    --no-install-recommends \
+                    --no-install-suggests \
+		    dotnet-sdk-2.2
+
 
 # Install SQLitePCLRaw DLL because it's missing in Mono distribution
 RUN nuget install -OutputDirectory /tmp SQLitePCLRaw.core -ExcludeVersion && \
