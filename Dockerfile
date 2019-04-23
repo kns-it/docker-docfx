@@ -1,13 +1,13 @@
 FROM alpine:latest as build
 
-ARG DOCFX_VERSION=2.42
+ARG DOCFX_VERSION=2.42.1
 
 RUN apk add -U wget unzip && \
     mkdir -p /tmp/docfx && \
     wget https://github.com/dotnet/docfx/releases/download/v${DOCFX_VERSION}/docfx.zip -O /tmp/docfx.zip && \
     unzip /tmp/docfx.zip -d /tmp/docfx
 
-FROM mono:5.18
+FROM mono:5.20
 
 ARG BUILD_DATE
 ARG VCS_REF

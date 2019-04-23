@@ -1,6 +1,6 @@
 FROM alpine:latest as build
 
-ARG DOCFX_VERSION=2.40.12
+ARG DOCFX_VERSION=2.42.1
 
 RUN apk add -U wget unzip gnupg && \
     mkdir -p /tmp/docfx && \
@@ -9,7 +9,7 @@ RUN apk add -U wget unzip gnupg && \
     wget -qO- https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor > /tmp/microsoft.asc.gpg && \
     wget https://packages.microsoft.com/config/debian/9/prod.list -O /tmp/prod.list
 
-FROM mono:5.18
+FROM mono:5.20
 
 ARG BUILD_DATE
 ARG VCS_REF
