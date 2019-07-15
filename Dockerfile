@@ -1,6 +1,6 @@
 FROM alpine:latest as build
 
-ARG DOCFX_VERSION=2.43.2
+ARG DOCFX_VERSION=2.43.3
 
 RUN apk add -U wget unzip && \
     mkdir -p /tmp/docfx && \
