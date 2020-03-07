@@ -1,6 +1,0 @@
-hooks/
-README.md
-Dockerfile
-.gitignore
-.dockerignore
-build-container.sh

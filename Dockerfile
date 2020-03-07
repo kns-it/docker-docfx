@@ -1,13 +1,13 @@
 FROM alpine:latest as build
 
-ARG DOCFX_VERSION=2.44
+ARG DOCFX_VERSION=2.50
 
 RUN apk add -U wget unzip && \
     mkdir -p /tmp/docfx && \
     wget https://github.com/dotnet/docfx/releases/download/v${DOCFX_VERSION}/docfx.zip -O /tmp/docfx.zip && \
     unzip /tmp/docfx.zip -d /tmp/docfx
 
-FROM mono:5.20
+FROM mono:6.8
 
 ARG BUILD_DATE
 ARG VCS_REF
@@ -42,12 +42,6 @@ RUN apt-get update && \
 
 # Copy downloaded and extracted DocFX sources to runtime container
 COPY --from=build --chown=docfx:docfx /tmp/docfx /opt/docfx
-
-# Install SQLitePCLRaw DLL because it's missing in Mono distribution
-RUN nuget install -OutputDirectory /tmp SQLitePCLRaw.core -ExcludeVersion && \
-    mv /tmp/SQLitePCLRaw.core/lib/net45/SQLitePCLRaw.core.dll /opt/docfx/ && \
-    rm -rf /tmp/SQLitePCLRaw.core && \
-    chown -R docfx:docfx /opt/docfx
 
 # Add script to mimic docfx executable
 ADD docfx /usr/bin/docfx
